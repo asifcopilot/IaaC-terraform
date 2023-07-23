@@ -29,4 +29,8 @@ resource "aws_security_group" "tf-sg" {
     project = "devops-terraform"
   }
 
+  depends_on = [
+    aws_vpc.vpc
+  ]
+
 }

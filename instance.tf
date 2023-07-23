@@ -6,8 +6,27 @@ resource "aws_instance" "web01" {
   subnet_id              = aws_subnet.pubsub1.id
   vpc_security_group_ids = [aws_security_group.tf-sg.id]
   tags = {
-    Name = "web01"
+    Name    = "web01"
     project = "terraform"
+  }
+
+  provisioner "file" {
+    source      = "web.sh"
+    destination = "/tmp/web.sh"
+  }
+
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo chmod +x /tmp/web.sh",
+      "sudo /tmp/web.sh"
+    ]
+  }
+
+  connection {
+    user        = "ubuntu"
+    private_key = file("tf-key")
+    host        = self.public_ip
   }
 }
 
