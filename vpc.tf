@@ -1,111 +1,89 @@
-## Create VPC
-resource "aws_vpc" "vpc" {
-  cidr_block           = var.vpc
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+variable "region" {}
+variable "vpc-cidr" {}
+variable "env" {}
+variable "az" {
+  type = list(any)
+}
+
+variable "public-sub" {
+  type = list(any)
+}
+
+
+resource "aws_vpc" "devops-vpc" {
+  cidr_block           = var.vpc-cidr
+  enable_dns_hostnames = "true"
   tags = {
-    Name    = "Devops-tf"
-    Project = "terraform"
+    Name    = "${var.env}-devops-vpc"
+    project = "Devops"
   }
 }
 
-resource "aws_subnet" "pubsub1" {
-  vpc_id                  = aws_vpc.vpc.id
-  cidr_block              = var.pubsub1
+resource "aws_subnet" "public-sub-1" {
+  vpc_id                  = aws_vpc.devops-vpc.id
+  availability_zone       = var.az[0]
+  cidr_block              = var.public-sub[0]
   map_public_ip_on_launch = true
-  availability_zone       = var.az1
-
   tags = {
-    Name = "pubsub1"
+    Name    = "${var.env}-public-sub-1"
+    project = "devops"
   }
 }
 
-resource "aws_subnet" "pubsub2" {
-  vpc_id                  = aws_vpc.vpc.id
-  cidr_block              = var.pubsub2
+resource "aws_subnet" "public-sub-2" {
+  vpc_id                  = aws_vpc.devops-vpc.id
+  availability_zone       = var.az[1]
+  cidr_block              = var.public-sub[1]
   map_public_ip_on_launch = true
-  availability_zone       = var.az2
-
   tags = {
-    Name = "pubsub2"
+    Name    = "${var.env}public-sub-2"
+    project = "devops"
   }
 }
 
-resource "aws_subnet" "pubsub3" {
-  vpc_id                  = aws_vpc.vpc.id
-  cidr_block              = var.pubsub3
+
+resource "aws_subnet" "public-sub-3" {
+  vpc_id                  = aws_vpc.devops-vpc.id
+  availability_zone       = var.az[2]
+  cidr_block              = var.public-sub[2]
   map_public_ip_on_launch = true
-  availability_zone       = var.az3
-
   tags = {
-    Name = "pubsub3"
+    Name    = "${var.env}public-sub-3"
+    project = "devops"
   }
 }
 
-resource "aws_subnet" "privsub1" {
-  vpc_id     = aws_vpc.vpc.id
-  cidr_block = var.privsub1
-
+resource "aws_internet_gateway" "IW" {
+  vpc_id = aws_vpc.devops-vpc.id
   tags = {
-    Name = "pubsub1"
+    Name    = "${var.env}devops-IG"
+    project = "devops"
   }
 }
 
-resource "aws_subnet" "privsub2" {
-  vpc_id     = aws_vpc.vpc.id
-  cidr_block = var.privsub2
-
-  tags = {
-    Name = "pubsub2"
-  }
-}
-
-resource "aws_subnet" "privsub3" {
-  vpc_id     = aws_vpc.vpc.id
-  cidr_block = var.privsub3
-
-  tags = {
-    Name = "pubsub3"
-  }
-}
-
-resource "aws_internet_gateway" "devops-tf-ig" {
-  vpc_id = aws_vpc.vpc.id
-  tags = {
-    Name    = "Devops-tf-IG"
-    project = "terraform"
-  }
-}
-
-# resource "aws_internet_gateway_attachment" "ig-attached" {
-#     vpc_id = aws_vpc.vpc.id
-#     internet_gateway_id = aws_internet_gateway.devops-tf-ig.id
-
-# }
-
-resource "aws_route_table" "pub-rt" {
-  vpc_id = aws_vpc.vpc.id
+resource "aws_route_table" "public-RT" {
+  vpc_id = aws_vpc.devops-vpc.id
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.devops-tf-ig.id
+    gateway_id = aws_internet_gateway.IW.id
   }
   tags = {
-    Name    = "pub-rt"
-    project = "terraform"
+    Name    = "${var.env}public-RT"
+    project = "devops"
   }
 }
 
-resource "aws_route_table_association" "rt-pub1" {
-  route_table_id = aws_route_table.pub-rt.id
-  subnet_id      = aws_subnet.pubsub1.id
+resource "aws_route_table_association" "public-sub-1" {
+  subnet_id      = aws_subnet.public-sub-1.id
+  route_table_id = aws_route_table.public-RT.id
 }
 
-resource "aws_route_table_association" "rt-pub2" {
-  route_table_id = aws_route_table.pub-rt.id
-  subnet_id      = aws_subnet.pubsub2.id
+resource "aws_route_table_association" "public-sub-2" {
+  subnet_id      = aws_subnet.public-sub-2.id
+  route_table_id = aws_route_table.public-RT.id
 }
 
-resource "aws_route_table_association" "rt-pub3" {
-  route_table_id = aws_route_table.pub-rt.id
-  subnet_id      = aws_subnet.pubsub3.id
+resource "aws_route_table_association" "public-sub-3" {
+  subnet_id      = aws_subnet.public-sub-3.id
+  route_table_id = aws_route_table.public-RT.id
 }
