@@ -6,6 +6,7 @@ resource "aws_instance" "webserver" {
   instance_type          = "t2.micro"
   key_name               = "devops-key"
   subnet_id              = aws_subnet.public-sub-1.id
+  iam_instance_profile   = aws_iam_instance_profile.instance_profile.name
   vpc_security_group_ids = [aws_security_group.web-sg.id]
   user_data              = file("web.sh")
   tags = {
