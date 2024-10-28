@@ -1,5 +1,5 @@
 variable "REGION" {
-  default = "us-east-2"
+  default = "ap-south-1"
 }
 
 variable "AMIS" {
@@ -41,15 +41,15 @@ variable "privsub3" {
 }
 
 variable "az1" {
-  default = "us-east-2a"
+  default = "ap-south-1a"
 }
 
 variable "az2" {
-  default = "us-east-2b"
+  default = "ap-south-1b"
 }
 
 variable "az3" {
-  default = "us-east-2c"
+  default = "ap-south-1c"
 }
 
 variable "pub-key" {
